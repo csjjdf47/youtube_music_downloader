@@ -1,0 +1,75 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.5'
+        channel: 'stable'
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Analyze project
+      run: flutter analyze
+
+    - name: Build APK
+      run: flutter build apk --release
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: youtube-music-downloader-apk
+        path: build/app/outputs/flutter-apk/app-release.apk
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.0
+        name: YouTube Music Downloader v1.0.0
+        body: |
+          🎵 **YouTube Music Downloader - Lightweight Overlay**
+          
+          ## Features
+          - 🚀 Ultra lightweight
+          - 📱 Share integration with YouTube
+          - 💫 Overlay design
+          - 💾 Background downloads
+          - 📊 Progress tracking
+          - 🎯 High-quality audio
+          
+          ## Installation
+          1. Download the APK file below
+          2. Enable "Install from unknown sources" in your Android settings
+          3. Install the APK
+          4. Share any YouTube video to the app to download it!
+          
+          ## How to Use
+          1. Open YouTube and find a video
+          2. Tap Share → Select "YT Music Downloader"
+          3. Tap Download and return to YouTube
+          4. Audio downloads in background to Music folder
+        files: |
+          build/app/outputs/flutter-apk/app-release.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
