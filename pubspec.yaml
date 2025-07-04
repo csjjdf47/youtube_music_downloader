@@ -15,7 +15,6 @@ dependencies:
   path_provider: ^2.1.1
   permission_handler: ^11.0.1
   youtube_explode_dart: ^2.5.1
-  receive_sharing_intent: ^1.4.5
 
 dev_dependencies:
   flutter_test:
